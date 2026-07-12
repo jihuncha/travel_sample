@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>파리 + 코펜하겐 여행 플래너</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --paper: #fffefa;
+      --ink: #252525;
+      --muted: #6b6f76;
+      --line: #ded9cf;
+      --green: #3f7d58;
+      --blue: #426b9f;
+      --rose: #b65f62;
+      --amber: #b57b22;
+      --shadow: 0 16px 36px rgba(45, 42, 36, .12);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 22px 16px;
+      border-right: 1px solid var(--line);
+      background: #fdfbf6;
+    }
+
+    .brand {
+      margin: 0 0 18px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .search {
+      min-width: 0;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 0 10px;
+    }
+
+    .icon-btn,
+    .text-btn {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+    }
+
+    .text-btn {
+      min-height: 38px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-weight: 700;
+    }
+
+    .text-btn.primary {
+      border-color: #264f3b;
+      background: #264f3b;
+      color: #fff;
+    }
+
+    .filters {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      color: #fff;
+      border-color: #264f3b;
+      background: #264f3b;
+    }
+
+    .day-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .day-btn {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .day-btn.active {
+      border-color: #264f3b;
+      box-shadow: inset 4px 0 0 #264f3b;
+    }
+
+    .day-btn .date {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-weight: 800;
+    }
+
+    .day-btn .summary {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.paris {
+      background: #e4edf8;
+      color: var(--blue);
+    }
+
+    .badge.copenhagen {
+      background: #e6f0e6;
+      color: var(--green);
+    }
+
+    .badge.transit {
+      background: #ece9e1;
+      color: #70695d;
+    }
+
+    main {
+      min-width: 0;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .title-block h2 {
+      margin: 0;
+      font-size: 32px;
+      letter-spacing: 0;
+    }
+
+    .title-block p {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .panel-head h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .panel-body {
+      padding: 18px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .event {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid #ebe5db;
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .event time {
+      font-weight: 900;
+      color: #264f3b;
+    }
+
+    .event h4 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .event p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .map-panel {
+      position: sticky;
+      top: 18px;
+    }
+
+    .map-wrap {
+      height: 430px;
+      background: #e9efe9;
+      position: relative;
+    }
+
+    .map-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      background: #fbf8f0;
+    }
+
+    .map-tab {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--muted);
+      min-height: 34px;
+      padding: 0 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .map-tab.active {
+      border-color: #264f3b;
+      background: #264f3b;
+      color: #fff;
+    }
+
+    .google-map {
+      width: 100%;
+      height: 430px;
+      border: 0;
+      display: block;
+      background: #e9efe9;
+    }
+
+    .map-note {
+      padding: 10px 12px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      background: #fffefa;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-bg {
+      fill: #eaf0ea;
+    }
+
+    .water {
+      fill: #d8e7eb;
+      opacity: .9;
+    }
+
+    .route-line {
+      fill: none;
+      stroke: #264f3b;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .route-dot {
+      fill: #fffefa;
+      stroke: #264f3b;
+      stroke-width: 3;
+    }
+
+    .dot-label {
+      font-size: 12px;
+      font-weight: 800;
+      fill: #252525;
+      paint-order: stroke;
+      stroke: #fffefa;
+      stroke-width: 5px;
+      stroke-linejoin: round;
+    }
+
+    .map-empty {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+    }
+
+    .map-meta {
+      display: grid;
+      gap: 10px;
+    }
+
+    .meta-line {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #ebe5db;
+    }
+
+    .meta-line:last-child {
+      border-bottom: 0;
+    }
+
+    .meta-line strong {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .notes {
+      width: 100%;
+      min-height: 130px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      resize: vertical;
+      background: #fff;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist label {
+      display: grid;
+      grid-template-columns: 20px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      padding: 8px 10px;
+      border: 1px solid #ebe5db;
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .overview {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffefa;
+      padding: 12px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 20px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .day-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .layout,
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .map-panel {
+        position: static;
+      }
+
+      .actions {
+        justify-content: flex-start;
+      }
+
+      .overview {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      main {
+        padding: 16px;
+      }
+
+      .day-list,
+      .overview {
+        grid-template-columns: 1fr;
+      }
+
+      .title-block h2 {
+        font-size: 24px;
+      }
+
+      .map-wrap {
+        height: 330px;
+      }
+
+      .google-map {
+        height: 330px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <section class="brand">
+        <h1>Paris + Copenhagen</h1>
+        <p>2026.10.06-10.18 · 여행 운영 플래너</p>
+      </section>
+
+      <div class="toolbar">
+        <input id="search" class="search" type="search" placeholder="일정 검색">
+        <button id="resetNotes" class="icon-btn" title="저장된 메모 초기화" aria-label="저장된 메모 초기화">↺</button>
+      </div>
+
+      <div class="filters" aria-label="도시 필터">
+        <button class="chip active" data-filter="all">전체</button>
+        <button class="chip" data-filter="Paris">파리</button>
+        <button class="chip" data-filter="Copenhagen">코펜하겐</button>
+      </div>
+
+      <nav id="dayList" class="day-list" aria-label="일별 일정"></nav>
+    </aside>
+
+    <main>
+      <section class="topbar">
+        <div class="title-block">
+          <h2 id="dayTitle"></h2>
+          <p id="daySubtitle"></p>
+        </div>
+        <div class="actions">
+          <a id="googleRoute" class="text-btn primary" target="_blank" rel="noreferrer">Google 길찾기</a>
+          <a id="myMaps" class="text-btn" target="_blank" rel="noreferrer">My Maps</a>
+          <button id="printBtn" class="text-btn">인쇄</button>
+        </div>
+      </section>
+
+      <section class="overview">
+        <div class="stat"><strong id="statCity"></strong><span>도시</span></div>
+        <div class="stat"><strong id="statLayer"></strong><span>켜야 할 지도 레이어</span></div>
+        <div class="stat"><strong id="statStatus"></strong><span>상태</span></div>
+        <div class="stat"><strong id="statAnchors"></strong><span>핵심 일정 수</span></div>
+      </section>
+
+      <section class="layout">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>시간표</h3>
+            <span id="routeText" class="badge transit"></span>
+          </div>
+          <div class="panel-body">
+            <div id="timeline" class="timeline"></div>
+          </div>
+        </div>
+
+        <div class="panel map-panel">
+          <div class="panel-head">
+            <h3>오늘 지도</h3>
+            <span id="mapHint" class="badge transit"></span>
+          </div>
+          <div class="map-tabs" role="tablist" aria-label="지도 선택">
+            <button class="map-tab active" type="button" data-map-mode="local">간이지도</button>
+            <button class="map-tab" type="button" data-map-mode="google">Google지도</button>
+          </div>
+          <div id="map" class="map-wrap"></div>
+          <iframe id="googleMapFrame" class="google-map hidden" title="Google My Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <div id="mapNote" class="map-note"></div>
+          <div class="panel-body">
+            <div class="map-meta">
+              <div class="meta-line"><strong>동선</strong><span id="metaRoute"></span></div>
+              <div class="meta-line"><strong>메모</strong><span id="metaMemo"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>체크리스트</h3>
+          </div>
+          <div class="panel-body">
+            <ul id="checklist" class="checklist"></ul>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>수정 메모</h3>
+            <span class="badge copenhagen">자동 저장</span>
+          </div>
+          <div class="panel-body">
+            <textarea id="notes" class="notes" placeholder="여기에 숙소 주소, 예약번호, 현장 변경사항을 적으면 브라우저에 저장됩니다."></textarea>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const MY_MAPS = "https://www.google.com/maps/d/u/0/edit?mid=18lwg820NoqhkpwEoXv3jwEPZfrLn8nU&usp=sharing";
+    const MY_MAPS_EMBED = "https://www.google.com/maps/d/embed?mid=18lwg820NoqhkpwEoXv3jwEPZfrLn8nU";
+
+    const days = [
+      {
+        id: "2026-10-06",
+        date: "10/06 화",
+        title: "인천 → 파리 도착",
+        city: "Transit",
+        status: "이동일",
+        layer: "항공/도착",
+        route: "ICN → CDG → 파리 숙소",
+        memo: "숙소 주소 확정 후 공항 이동 경로를 교체",
+        google: "https://www.google.com/maps/dir/?api=1&origin=Paris%20Charles%20de%20Gaulle%20Airport&destination=Paris%20city%20center&travelmode=transit",
+        events: [
+          ["11:45", "ICN 출발", "대한항공 KE5901"],
+          ["18:55", "CDG 도착", "입국/수하물"],
+          ["20:30", "파리 숙소 이동", "숙소 주소 확정 후 수정"]
+        ],
+        checks: ["공항 이동 방식 확정", "숙소 주소 입력", "다음날 동선 가볍게 확인"],
+        points: []
+      },
+      {
+        id: "2026-10-07",
+        date: "10/07 수",
+        title: "파리 산책 / 오페라",
+        city: "Paris",
+        status: "여유",
+        layer: "Layer 1",
+        route: "사크레쾨르 → 갤러리 라파예트 → 팔레 루아얄 → Pont des Arts",
+        memo: "뮤지엄패스 전날. 걷기, 카페, 쇼핑 중심",
+        google: "https://www.google.com/maps/dir/?api=1&origin=Sacr%C3%A9-C%C5%93ur%20Paris&destination=Pont%20des%20Arts%20Paris&waypoints=Galeries%20Lafayette%20Paris%7CPalais%20Royal%20Paris&travelmode=walking",
+        events: [
+          ["10:00", "몽마르트르 / 사크레쾨르", "첫날 무리하지 않는 산책"],
+          ["13:00", "오페라 / 갤러리 라파예트", "점심 + 백화점"],
+          ["16:00", "팔레 루아얄", "사진/카페"],
+          ["19:00", "Pont des Arts / 세느강", "야경"]
+        ],
+        checks: ["점심 후보 추가", "저녁 예약 여부 결정"],
+        points: [
+          ["Sacré-Cœur", 48.8867, 2.3431],
+          ["Galeries Lafayette", 48.8738, 2.3321],
+          ["Palais Royal", 48.8638, 2.3376],
+          ["Pont des Arts", 48.8585, 2.3376]
+        ]
+      },
+      {
+        id: "2026-10-08",
+        date: "10/08 목",
+        title: "뮤지엄패스 Day 1",
+        city: "Paris",
+        status: "예약필요",
+        layer: "Layer 2",
+        route: "루브르 → 오랑주리 → 오르세 → 생제르맹",
+        memo: "PMP 2일권 1일차. 루브르 시간예약 우선",
+        google: "https://www.google.com/maps/dir/?api=1&origin=Mus%C3%A9e%20du%20Louvre%20Paris&destination=Saint-Germain-des-Pr%C3%A9s%20Paris&waypoints=Mus%C3%A9e%20de%20l%27Orangerie%20Paris%7CMus%C3%A9e%20d%27Orsay%20Paris&travelmode=walking",
+        events: [
+          ["09:30", "루브르", "시간예약 필요"],
+          ["12:30", "점심 / 튈르리", "가볍게"],
+          ["14:00", "오랑주리", "운영시간 확인"],
+          ["16:00", "오르세", "야간개장 여부 확인"],
+          ["19:00", "생제르맹 저녁", "식당 후보 추가"]
+        ],
+        checks: ["루브르 예약", "오르세/오랑주리 운영시간 확인", "PMP 개시 시각 체크"],
+        points: [
+          ["Louvre", 48.8606, 2.3376],
+          ["Orangerie", 48.8638, 2.3226],
+          ["Orsay", 48.8600, 2.3266],
+          ["Saint-Germain", 48.8539, 2.3332]
+        ]
+      },
+      {
+        id: "2026-10-09",
+        date: "10/09 금",
+        title: "베르사유 / PMP Day 2",
+        city: "Paris",
+        status: "예약필요",
+        layer: "Layer 3",
+        route: "파리 → 베르사유 → 정원/트리아농 → 개선문",
+        memo: "PMP 2일권 2일차. 베르사유 시간예약/정원 유료일 확인",
+        google: "https://www.google.com/maps/dir/?api=1&origin=Paris%20city%20center&destination=Arc%20de%20Triomphe%20Paris&waypoints=Ch%C3%A2teau%20de%20Versailles&travelmode=transit",
+        events: [
+          ["08:30", "파리 출발", "RER/기차"],
+          ["10:00", "베르사유 궁전", "시간예약 필요"],
+          ["13:00", "정원 / 점심", "유료일 확인"],
+          ["15:00", "트리아농 후보", "체력 따라 조정"],
+          ["19:30", "개선문 야경 후보", "선택"]
+        ],
+        checks: ["베르사유 예약", "정원 유료일 확인", "저녁 체력 보고 조정"],
+        points: [
+          ["Paris", 48.8566, 2.3522],
+          ["Versailles", 48.8049, 2.1204],
+          ["Arc de Triomphe", 48.8738, 2.2950]
+        ]
+      },
+      {
+        id: "2026-10-10",
+        date: "10/10 토",
+        title: "생트샤펠 / 마레",
+        city: "Paris",
+        status: "확인필요",
+        layer: "Layer 4",
+        route: "생트샤펠 → 콩시에르주리 → 마레 → 보쥬 광장",
+        memo: "PMP 기간 밖. 생트샤펠은 개별결제 또는 생략",
+        google: "https://www.google.com/maps/dir/?api=1&origin=Sainte-Chapelle%20Paris&destination=Place%20des%20Vosges%20Paris&waypoints=Conciergerie%20Paris%7CLe%20Marais%20Paris&travelmode=walking",
+        events: [
+          ["10:00", "생트샤펠", "개별결제/예약 여부 결정"],
+          ["11:30", "콩시에르주리 후보", "선택"],
+          ["13:00", "마레 점심/쇼핑", "빈티지/편집숍"],
+          ["16:30", "보쥬 광장", "카페/휴식"]
+        ],
+        checks: ["생트샤펠 갈지 결정", "마레 식당 후보 추가"],
+        points: [
+          ["Sainte-Chapelle", 48.8554, 2.3450],
+          ["Conciergerie", 48.8560, 2.3456],
+          ["Le Marais", 48.8589, 2.3624],
+          ["Place des Vosges", 48.8556, 2.3655]
+        ]
+      },
+      {
+        id: "2026-10-11",
+        date: "10/11 일",
+        title: "라발레 아울렛",
+        city: "Paris",
+        status: "확인필요",
+        layer: "Layer 5",
+        route: "파리 → La Vallée Village → 파리",
+        memo: "셔틀/영업시간/택스리펀 확인",
+        google: "https://www.google.com/maps/dir/?api=1&origin=Paris%20city%20center&destination=Paris%20city%20center&waypoints=La%20Vall%C3%A9e%20Village&travelmode=transit",
+        events: [
+          ["10:00", "파리 출발", "RER/셔틀 선택"],
+          ["11:00", "La Vallée Village", "아울렛"],
+          ["15:30", "카페/택스리펀 체크", "구매품 정리"],
+          ["18:00", "파리 복귀", "저녁은 숙소 근처"]
+        ],
+        checks: ["셔틀 예약/교통 확정", "택스리펀 준비물 확인"],
+        points: [
+          ["Paris", 48.8566, 2.3522],
+          ["La Vallée Village", 48.8554, 2.7835]
+        ]
+      },
+      {
+        id: "2026-10-12",
+        date: "10/12 월",
+        title: "파리 → 코펜하겐",
+        city: "Transit",
+        status: "이동일",
+        layer: "Layer 6",
+        route: "CDG 09:50 → CPH 11:40 → Nyhavn",
+        memo: "항공 이동일. 오후는 가볍게",
+        google: "https://www.google.com/maps/dir/?api=1&origin=Copenhagen%20Airport&destination=Nyhavn%20Copenhagen&travelmode=transit",
+        events: [
+          ["09:50", "CDG 출발", "대한항공 SK564"],
+          ["11:40", "CPH 도착", "수하물/이동"],
+          ["14:00", "숙소 체크인/짐 맡기기", "숙소 확정 후 수정"],
+          ["16:00", "Nyhavn 산책", "가벼운 도착일 코스"]
+        ],
+        checks: ["코펜하겐 숙소 주소 입력", "공항-숙소 이동 방식 확정"],
+        points: [
+          ["CPH Airport", 55.6180, 12.6508],
+          ["Nyhavn", 55.6797, 12.5903]
+        ]
+      },
+      {
+        id: "2026-10-13",
+        date: "10/13 화",
+        title: "Nørrebro 빈티지/카페",
+        city: "Copenhagen",
+        status: "확인필요",
+        layer: "Layer 6",
+        route: "Jægersborggade → Assistens Cemetery → Veras Vintage → Nørrebro",
+        memo: "빈티지 숍 휴무 확인",
+        google: "https://www.google.com/maps/dir/?api=1&origin=J%C3%A6gersborggade%20Copenhagen&destination=N%C3%B8rrebro%20Copenhagen&waypoints=Assistens%20Cemetery%20Copenhagen%7CVeras%20Vintage%20Copenhagen&travelmode=walking",
+        events: [
+          ["10:30", "Jægersborggade 카페/샵", "커피 + 편집숍"],
+          ["12:30", "Assistens Cemetery 산책", "동선 중간 휴식"],
+          ["14:00", "Veras Vintage", "영업일 확인"],
+          ["18:00", "Nørrebro 저녁", "와인바/식당 후보"]
+        ],
+        checks: ["빈티지 숍 휴무 확인", "저녁 후보 추가"],
+        points: [
+          ["Jægersborggade", 55.6920, 12.5433],
+          ["Assistens", 55.6914, 12.5480],
+          ["Veras Vintage", 55.6866, 12.5580],
+          ["Nørrebro", 55.6993, 12.5485]
+        ]
+      },
+      {
+        id: "2026-10-14",
+        date: "10/14 수",
+        title: "Vesterbro / Tivoli",
+        city: "Copenhagen",
+        status: "확인필요",
+        layer: "Layer 7",
+        route: "Prolog Coffee → Kødbyen → Vesterbro → Tivoli",
+        memo: "Tivoli 10월 운영일 확인",
+        google: "https://www.google.com/maps/dir/?api=1&origin=Prolog%20Coffee%20Bar%20Copenhagen&destination=Tivoli%20Gardens%20Copenhagen&waypoints=Meatpacking%20District%20Copenhagen%7CVesterbro%20Copenhagen&travelmode=walking",
+        events: [
+          ["10:00", "Prolog Coffee", "커피"],
+          ["11:30", "Kødbyen / Vesterbro", "샵/점심"],
+          ["15:00", "휴식", "숙소 복귀 가능"],
+          ["18:00", "Tivoli 후보", "운영일 확인"]
+        ],
+        checks: ["Tivoli 운영일 확인", "저녁 후보 추가"],
+        points: [
+          ["Prolog", 55.6688, 12.5570],
+          ["Kødbyen", 55.6682, 12.5610],
+          ["Vesterbro", 55.6710, 12.5480],
+          ["Tivoli", 55.6737, 12.5681]
+        ]
+      },
+      {
+        id: "2026-10-15",
+        date: "10/15 목",
+        title: "Christianshavn / Refshaleøen",
+        city: "Copenhagen",
+        status: "확인필요",
+        layer: "Layer 8",
+        route: "Christianshavn → Copenhagen Contemporary → La Banchina",
+        memo: "CC 운영시간/전시 확인",
+        google: "https://www.google.com/maps/dir/?api=1&origin=Christianshavn%20Copenhagen&destination=La%20Banchina%20Copenhagen&waypoints=Copenhagen%20Contemporary&travelmode=walking",
+        events: [
+          ["10:30", "Christianshavn 산책", "운하 동네"],
+          ["13:00", "Copenhagen Contemporary", "전시 확인"],
+          ["16:00", "La Banchina", "카페/바다쪽 휴식"],
+          ["19:00", "저녁", "숙소 동선 따라 조정"]
+        ],
+        checks: ["CC 전시/운영시간 확인", "La Banchina 운영 확인"],
+        points: [
+          ["Christianshavn", 55.6728, 12.5940],
+          ["CC", 55.6935, 12.6090],
+          ["La Banchina", 55.6956, 12.6105]
+        ]
+      },
+      {
+        id: "2026-10-16",
+        date: "10/16 금",
+        title: "마지막 풀데이",
+        city: "Copenhagen",
+        status: "예약필요",
+        layer: "Layer 9",
+        route: "Værnedamsvej → Frederiksberg Gardens → Time's Up Vintage → Restaurant Barr",
+        memo: "마지막 저녁 식당 예약 추천",
+        google: "https://www.google.com/maps/dir/?api=1&origin=V%C3%A6rnedamsvej%20Copenhagen&destination=Restaurant%20Barr%20Copenhagen&waypoints=Frederiksberg%20Gardens%20Copenhagen%7CTime%27s%20Up%20Vintage%20Copenhagen&travelmode=walking",
+        events: [
+          ["10:30", "Værnedamsvej", "카페/샵"],
+          ["12:30", "Frederiksberg Gardens", "산책"],
+          ["15:00", "Time's Up Vintage", "빈티지"],
+          ["19:00", "Restaurant Barr 후보", "예약 권장"]
+        ],
+        checks: ["마지막 저녁 예약", "쇼핑/짐 정리 시간 확보"],
+        points: [
+          ["Værnedamsvej", 55.6740, 12.5480],
+          ["Frederiksberg", 55.6747, 12.5235],
+          ["Time's Up", 55.6815, 12.5810],
+          ["Barr", 55.6776, 12.5930]
+        ]
+      },
+      {
+        id: "2026-10-17",
+        date: "10/17 토",
+        title: "코펜하겐 출국",
+        city: "Transit",
+        status: "이동일",
+        layer: "Layer 10",
+        route: "Torvehallerne → CPH 16:30 → AMS 17:55 → ICN",
+        memo: "10/18 16:25 인천 도착",
+        google: "https://www.google.com/maps/dir/?api=1&origin=TorvehallerneKBH&destination=Copenhagen%20Airport&travelmode=transit",
+        events: [
+          ["09:30", "체크아웃/짐 보관", "숙소 정책 확인"],
+          ["10:30", "Torvehallerne", "마지막 카페/간단 쇼핑"],
+          ["13:30", "공항 이동", "여유 있게"],
+          ["16:30", "CPH 출발", "KE6410"],
+          ["21:25", "AMS 출발", "KE5926"]
+        ],
+        checks: ["체크아웃/짐 보관 확인", "택스리펀 시간 확보"],
+        points: [
+          ["Torvehallerne", 55.6837, 12.5714],
+          ["CPH Airport", 55.6180, 12.6508]
+        ]
+      }
+    ];
+
+    const state = {
+      selected: days[0].id,
+      filter: "all",
+      query: "",
+      mapMode: "local"
+    };
+
+    const els = {
+      dayList: document.querySelector("#dayList"),
+      search: document.querySelector("#search"),
+      dayTitle: document.querySelector("#dayTitle"),
+      daySubtitle: document.querySelector("#daySubtitle"),
+      timeline: document.querySelector("#timeline"),
+      googleRoute: document.querySelector("#googleRoute"),
+      myMaps: document.querySelector("#myMaps"),
+      printBtn: document.querySelector("#printBtn"),
+      statCity: document.querySelector("#statCity"),
+      statLayer: document.querySelector("#statLayer"),
+      statStatus: document.querySelector("#statStatus"),
+      statAnchors: document.querySelector("#statAnchors"),
+      routeText: document.querySelector("#routeText"),
+      map: document.querySelector("#map"),
+      googleMapFrame: document.querySelector("#googleMapFrame"),
+      mapNote: document.querySelector("#mapNote"),
+      mapHint: document.querySelector("#mapHint"),
+      metaRoute: document.querySelector("#metaRoute"),
+      metaMemo: document.querySelector("#metaMemo"),
+      checklist: document.querySelector("#checklist"),
+      notes: document.querySelector("#notes"),
+      resetNotes: document.querySelector("#resetNotes")
+    };
+
+    function cityLabel(city) {
+      if (city === "Paris") return "파리";
+      if (city === "Copenhagen") return "코펜하겐";
+      return "이동";
+    }
+
+    function noteKey(id) {
+      return `travel-note:${id}`;
+    }
+
+    function checkedKey(id, index) {
+      return `travel-check:${id}:${index}`;
+    }
+
+    function filteredDays() {
+      const q = state.query.trim().toLowerCase();
+      return days.filter(day => {
+        const matchesCity = state.filter === "all" || day.city === state.filter;
+        const haystack = `${day.date} ${day.title} ${day.route} ${day.memo} ${day.events.flat().join(" ")}`.toLowerCase();
+        return matchesCity && (!q || haystack.includes(q));
+      });
+    }
+
+    function renderList() {
+      const list = filteredDays();
+      els.dayList.innerHTML = "";
+      list.forEach(day => {
+        const btn = document.createElement("button");
+        btn.className = `day-btn ${day.id === state.selected ? "active" : ""}`;
+        btn.type = "button";
+        btn.innerHTML = `
+          <div class="date">
+            <span>${day.date}</span>
+            <span class="badge ${day.city.toLowerCase()}">${cityLabel(day.city)}</span>
+          </div>
+          <div class="summary">${day.title}</div>
+        `;
+        btn.addEventListener("click", () => {
+          state.selected = day.id;
+          render();
+        });
+        els.dayList.appendChild(btn);
+      });
+    }
+
+    function project(points, width, height) {
+      const lats = points.map(p => p[1]);
+      const lngs = points.map(p => p[2]);
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+      const minLng = Math.min(...lngs);
+      const maxLng = Math.max(...lngs);
+      const pad = 58;
+      const latSpan = Math.max(maxLat - minLat, 0.01);
+      const lngSpan = Math.max(maxLng - minLng, 0.01);
+
+      return points.map(([name, lat, lng]) => {
+        const x = pad + ((lng - minLng) / lngSpan) * (width - pad * 2);
+        const y = height - pad - ((lat - minLat) / latSpan) * (height - pad * 2);
+        return { name, x, y };
+      });
+    }
+
+    function renderMap(day) {
+      const width = 760;
+      const height = 430;
+      if (!day.points.length) {
+        els.map.innerHTML = `<div class="map-empty">도착일은 도시 내 상세 동선이 없습니다.<br>Google 길찾기 버튼으로 공항 이동만 확인하세요.</div>`;
+        return;
+      }
+
+      const pts = project(day.points, width, height);
+      const polyline = pts.map(p => `${p.x},${p.y}`).join(" ");
+      const dots = pts.map((p, i) => `
+        <circle class="route-dot" cx="${p.x}" cy="${p.y}" r="9"></circle>
+        <text class="dot-label" x="${Math.min(p.x + 13, width - 170)}" y="${p.y - 12}">${i + 1}. ${p.name}</text>
+      `).join("");
+
+      els.map.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${day.title} 동선 지도">
+          <rect class="map-bg" width="${width}" height="${height}"></rect>
+          <path class="water" d="M0,325 C170,282 220,372 398,325 C535,288 620,312 760,270 L760,430 L0,430 Z"></path>
+          <polyline class="route-line" points="${polyline}"></polyline>
+          ${dots}
+        </svg>
+      `;
+    }
+
+    function renderMapMode(day) {
+      document.querySelectorAll(".map-tab").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.mapMode === state.mapMode);
+      });
+
+      const googleMode = state.mapMode === "google";
+      els.map.classList.toggle("hidden", googleMode);
+      els.googleMapFrame.classList.toggle("hidden", !googleMode);
+      els.googleMapFrame.src = MY_MAPS_EMBED;
+      els.mapNote.textContent = googleMode
+        ? `Google My Maps 전체 지도입니다. 지도 왼쪽 레이어에서 ${day.layer}만 켜면 오늘 동선만 볼 수 있어요. 안 뜨면 My Maps 공유 설정을 링크 보기 가능으로 바꾸면 됩니다.`
+        : "간이지도는 인터넷 없이도 보이도록 로컬에서 그린 동선입니다. 실제 길찾기는 Google 길찾기 버튼을 쓰면 됩니다.";
+    }
+
+    function renderDay() {
+      const day = days.find(d => d.id === state.selected) || days[0];
+      els.dayTitle.textContent = `${day.date} · ${day.title}`;
+      els.daySubtitle.textContent = day.route;
+      els.googleRoute.href = day.google;
+      els.myMaps.href = MY_MAPS;
+      els.statCity.textContent = cityLabel(day.city);
+      els.statLayer.textContent = day.layer;
+      els.statStatus.textContent = day.status;
+      els.statAnchors.textContent = `${day.events.length}개`;
+      els.routeText.textContent = day.status;
+      els.routeText.className = `badge ${day.city.toLowerCase()}`;
+      els.mapHint.textContent = day.layer;
+      els.mapHint.className = `badge ${day.city.toLowerCase()}`;
+      els.metaRoute.textContent = day.route;
+      els.metaMemo.textContent = day.memo;
+
+      els.timeline.innerHTML = "";
+      day.events.forEach(([time, title, memo]) => {
+        const row = document.createElement("article");
+        row.className = "event";
+        row.innerHTML = `<time>${time}</time><div><h4>${title}</h4><p>${memo}</p></div>`;
+        els.timeline.appendChild(row);
+      });
+
+      els.checklist.innerHTML = "";
+      day.checks.forEach((item, index) => {
+        const li = document.createElement("li");
+        const id = `check-${day.id}-${index}`;
+        const key = checkedKey(day.id, index);
+        const checked = localStorage.getItem(key) === "1";
+        li.innerHTML = `
+          <label for="${id}">
+            <input id="${id}" type="checkbox" ${checked ? "checked" : ""}>
+            <span>${item}</span>
+          </label>
+        `;
+        li.querySelector("input").addEventListener("change", event => {
+          localStorage.setItem(key, event.target.checked ? "1" : "0");
+        });
+        els.checklist.appendChild(li);
+      });
+
+      els.notes.value = localStorage.getItem(noteKey(day.id)) || "";
+      els.notes.oninput = () => {
+        localStorage.setItem(noteKey(day.id), els.notes.value);
+      };
+
+      renderMap(day);
+      renderMapMode(day);
+    }
+
+    function render() {
+      renderList();
+      renderDay();
+    }
+
+    document.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        state.filter = chip.dataset.filter;
+        const list = filteredDays();
+        if (!list.some(day => day.id === state.selected) && list[0]) state.selected = list[0].id;
+        render();
+      });
+    });
+
+    els.search.addEventListener("input", event => {
+      state.query = event.target.value;
+      const list = filteredDays();
+      if (!list.some(day => day.id === state.selected) && list[0]) state.selected = list[0].id;
+      render();
+    });
+
+    els.printBtn.addEventListener("click", () => window.print());
+
+    document.querySelectorAll(".map-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        state.mapMode = tab.dataset.mapMode;
+        renderDay();
+      });
+    });
+
+    els.resetNotes.addEventListener("click", () => {
+      if (!confirm("브라우저에 저장된 메모와 체크 상태를 초기화할까요?")) return;
+      Object.keys(localStorage)
+        .filter(key => key.startsWith("travel-note:") || key.startsWith("travel-check:"))
+        .forEach(key => localStorage.removeItem(key));
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
