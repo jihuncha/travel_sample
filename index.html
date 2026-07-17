@@ -677,50 +677,50 @@
       {
         id: "2026-10-08",
         date: "10/08 목",
-        title: "뮤지엄패스 Day 1",
+        title: "베르사유 / PMP Day 1",
         city: "Paris",
-        status: "예약필요",
+        status: "예약완료",
         layer: "Layer 2",
-        route: "루브르 → 오랑주리 → 오르세 → 생제르맹",
-        memo: "PMP 2일권 1일차. 루브르 시간예약 우선",
-        google: "https://www.google.com/maps/dir/?api=1&origin=Mus%C3%A9e%20du%20Louvre%20Paris&destination=Saint-Germain-des-Pr%C3%A9s%20Paris&waypoints=Mus%C3%A9e%20de%20l%27Orangerie%20Paris%7CMus%C3%A9e%20d%27Orsay%20Paris&travelmode=walking",
+        route: "파리 → 베르사유 → 정원/트리아농 → 개선문",
+        memo: "베르사유 예약 완료. PMP 2일권 1일차로 사용 예정",
+        google: "https://www.google.com/maps/dir/?api=1&origin=Paris%20city%20center&destination=Arc%20de%20Triomphe%20Paris&waypoints=Ch%C3%A2teau%20de%20Versailles&travelmode=transit",
         events: [
-          ["09:30", "루브르", "시간예약 필요"],
-          ["12:30", "점심 / 튈르리", "가볍게"],
-          ["14:00", "오랑주리", "운영시간 확인"],
-          ["16:00", "오르세", "야간개장 여부 확인"],
-          ["19:00", "생제르맹 저녁", "식당 후보 추가"]
+          ["08:30", "파리 출발", "RER/기차"],
+          ["10:00", "베르사유 궁전", "예약 완료"],
+          ["13:00", "정원 / 점심", "유료일 확인"],
+          ["15:00", "트리아농 후보", "체력 따라 조정"],
+          ["19:30", "개선문 야경 후보", "선택"]
         ],
-        checks: ["루브르 예약", "오르세/오랑주리 운영시간 확인", "PMP 개시 시각 체크"],
+        checks: ["베르사유 예약 정보 확인", "정원 유료일 확인", "저녁 체력 보고 조정"],
         points: [
-          ["Louvre", 48.8606, 2.3376],
-          ["Orangerie", 48.8638, 2.3226],
-          ["Orsay", 48.8600, 2.3266],
-          ["Saint-Germain", 48.8539, 2.3332]
+          ["Paris", 48.8566, 2.3522],
+          ["Versailles", 48.8049, 2.1204],
+          ["Arc de Triomphe", 48.8738, 2.2950]
         ]
       },
       {
         id: "2026-10-09",
         date: "10/09 금",
-        title: "베르사유 / PMP Day 2",
+        title: "박물관 / PMP Day 2",
         city: "Paris",
         status: "예약필요",
         layer: "Layer 3",
-        route: "파리 → 베르사유 → 정원/트리아농 → 개선문",
-        memo: "PMP 2일권 2일차. 베르사유 시간예약/정원 유료일 확인",
-        google: "https://www.google.com/maps/dir/?api=1&origin=Paris%20city%20center&destination=Arc%20de%20Triomphe%20Paris&waypoints=Ch%C3%A2teau%20de%20Versailles&travelmode=transit",
+        route: "루브르 → 오랑주리 → 오르세 → 생제르맹",
+        memo: "PMP 2일권 2일차. 루브르 시간예약 우선",
+        google: "https://www.google.com/maps/dir/?api=1&origin=Mus%C3%A9e%20du%20Louvre%20Paris&destination=Saint-Germain-des-Pr%C3%A9s%20Paris&waypoints=Mus%C3%A9e%20de%20l%27Orangerie%20Paris%7CMus%C3%A9e%20d%27Orsay%20Paris&travelmode=walking",
         events: [
-          ["08:30", "파리 출발", "RER/기차"],
-          ["10:00", "베르사유 궁전", "시간예약 필요"],
-          ["13:00", "정원 / 점심", "유료일 확인"],
-          ["15:00", "트리아농 후보", "체력 따라 조정"],
-          ["19:30", "개선문 야경 후보", "선택"]
+          ["09:30", "루브르", "시간예약 필요"],
+          ["12:30", "점심 / 튈르리", "가볍게"],
+          ["14:00", "오랑주리", "운영시간 확인"],
+          ["16:00", "오르세", "운영시간 확인"],
+          ["19:00", "생제르맹 저녁", "식당 후보 추가"]
         ],
-        checks: ["베르사유 예약", "정원 유료일 확인", "저녁 체력 보고 조정"],
+        checks: ["루브르 예약", "오르세/오랑주리 운영시간 확인", "PMP 종료 시각 체크"],
         points: [
-          ["Paris", 48.8566, 2.3522],
-          ["Versailles", 48.8049, 2.1204],
-          ["Arc de Triomphe", 48.8738, 2.2950]
+          ["Louvre", 48.8606, 2.3376],
+          ["Orangerie", 48.8638, 2.3226],
+          ["Orsay", 48.8600, 2.3266],
+          ["Saint-Germain", 48.8539, 2.3332]
         ]
       },
       {
@@ -953,8 +953,28 @@
       return `travel-note:${id}`;
     }
 
-    function checkedKey(id, index) {
+    function checkedKey(id, item) {
+      return `travel-check:${id}:${encodeURIComponent(item)}`;
+    }
+
+    function legacyCheckedKey(id, index) {
       return `travel-check:${id}:${index}`;
+    }
+
+    function migrateRescheduledChecks() {
+      const migrations = [
+        ["2026-10-08", 0, "2026-10-09", "루브르 예약"],
+        ["2026-10-08", 1, "2026-10-09", "오르세/오랑주리 운영시간 확인"],
+        ["2026-10-09", 0, "2026-10-08", "베르사유 예약 정보 확인"],
+        ["2026-10-09", 1, "2026-10-08", "정원 유료일 확인"],
+        ["2026-10-09", 2, "2026-10-08", "저녁 체력 보고 조정"]
+      ];
+
+      migrations.forEach(([oldId, oldIndex, newId, item]) => {
+        if (localStorage.getItem(legacyCheckedKey(oldId, oldIndex)) === "1") {
+          localStorage.setItem(checkedKey(newId, item), "1");
+        }
+      });
     }
 
     function filteredDays() {
@@ -1074,8 +1094,10 @@
       day.checks.forEach((item, index) => {
         const li = document.createElement("li");
         const id = `check-${day.id}-${index}`;
-        const key = checkedKey(day.id, index);
-        const checked = localStorage.getItem(key) === "1";
+        const key = checkedKey(day.id, item);
+        const saved = localStorage.getItem(key);
+        const canUseLegacyKey = day.id !== "2026-10-08" && day.id !== "2026-10-09";
+        const checked = saved === "1" || (saved === null && canUseLegacyKey && localStorage.getItem(legacyCheckedKey(day.id, index)) === "1");
         li.innerHTML = `
           <label for="${id}">
             <input id="${id}" type="checkbox" ${checked ? "checked" : ""}>
@@ -1137,6 +1159,7 @@
       render();
     });
 
+    migrateRescheduledChecks();
     render();
   </script>
 </body>
