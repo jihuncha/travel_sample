@@ -2,6 +2,8 @@
 
 휴대폰에서 URL로 바로 열어볼 수 있는 정적 여행 플래너 샘플입니다.
 
+[신혼여행 플래너 바로 열기](https://jihuncha.github.io/travel_sample/)
+
 현재 샘플 데이터는 2026년 10월 파리 + 코펜하겐 일정입니다. 프로젝트 문구는 특정 여행 유형에 묶이지 않도록 `여행 플래너` 기준으로 관리합니다.
 
 ## Features
@@ -42,8 +44,8 @@ python3 -m http.server 8080
 1. GitHub repository의 `Settings`로 이동합니다.
 2. `Pages` 메뉴를 엽니다.
 3. `Source`를 `Deploy from a branch`로 설정합니다.
-4. Branch는 `main`, folder는 `/root`로 설정합니다.
-5. 예상 URL은 `https://jihuncha.github.io/travel_sample/`입니다.
+4. Branch는 `main`, folder는 `/(root)`로 설정합니다.
+5. 배포된 페이지는 [https://jihuncha.github.io/travel_sample/](https://jihuncha.github.io/travel_sample/)에서 확인합니다.
 
 ## Notes
 
